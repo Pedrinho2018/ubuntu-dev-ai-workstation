@@ -14,7 +14,27 @@ Montar um ambiente reutilizável para:
 - Administração remota via SSH/RDP
 - NVIDIA no host físico
 
-## Uso
+## Teste recomendado primeiro
+
+Antes de instalar no computador físico, valide tudo em uma VM Hyper-V com Ubuntu 26.04 LTS.
+
+Guia completo:
+
+- [`docs/hyper-v-ubuntu-26.04.md`](docs/hyper-v-ubuntu-26.04.md)
+
+Perfil de instalação automatizada para VM:
+
+- [`autoinstall/autoinstall-vm.yaml`](autoinstall/autoinstall-vm.yaml)
+
+URL RAW para importar diretamente no instalador do Ubuntu:
+
+```text
+https://raw.githubusercontent.com/Pedrinho2018/ubuntu-dev-ai-workstation/main/autoinstall/autoinstall-vm.yaml
+```
+
+> O perfil de VM usa o disco inteiro apresentado ao instalador. Não use em máquina física sem revisar `storage`.
+
+## Uso depois da instalação
 
 ```bash
 git clone https://github.com/Pedrinho2018/ubuntu-dev-ai-workstation.git
@@ -23,16 +43,18 @@ chmod +x setup.sh scripts/*.sh
 ./setup.sh
 ```
 
-## Primeiro teste na VM
+## Módulos
 
-Na VM, execute primeiro:
+O menu do `setup.sh` permite instalar:
 
 1. Base Linux
 2. Desenvolvimento
-3. IA
+3. IA / Machine Learning
 4. DevOps
-5. Redes
-6. Apps
+5. Redes / Segurança
+6. Apps de estudo
+7. NVIDIA no host físico
+8. Perfil completo recomendado
 
 > Não instale o módulo NVIDIA dentro da VM. O script tenta detectar virtualização e bloqueia essa etapa.
 
@@ -77,6 +99,3 @@ O `.gitignore` bloqueia vários formatos sensíveis.
 - Steam
 - AWS CLI / Azure CLI
 - configuração opcional KDE Plasma
-- `autoinstall.yaml`
-
-https://raw.githubusercontent.com/Pedrinho2018/ubuntu-dev-ai-workstation/main/autoinstall/autoinstall-vm.yaml
