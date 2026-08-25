@@ -4,11 +4,12 @@ Automação modular para preparar um Ubuntu voltado ao uso real em desenvolvimen
 
 ## Perfil principal
 
-O projeto agora foi ajustado para um uso misto de:
+O projeto está ajustado para um uso misto de:
 
 - Python, C/C++, Java e JavaScript/Node.js
 - PostgreSQL, MySQL/MariaDB e SQLite
 - Machine Learning e análise de dados financeiros
+- PyTorch com CUDA quando uma GPU NVIDIA ativa é detectada
 - Docker, Docker Compose, Podman, Buildah e Ansible
 - AWS CLI, Azure CLI, Terraform e GitHub CLI
 - Kubernetes com kubectl e Helm
@@ -55,14 +56,26 @@ chmod +x setup.sh scripts/*.sh
 ./setup.sh
 ```
 
-## Setup v0.3
+## Setup v0.4
+
+A versão 0.4 adiciona instalação e validação de **PyTorch + CUDA** no ambiente de IA.
+
+Quando `nvidia-smi` está ativo, o módulo de IA:
+
+1. prepara o ambiente virtual `~/.venvs/ai`;
+2. instala as bibliotecas de Machine Learning;
+3. instala `torch`, `torchvision` e `torchaudio` com build CUDA;
+4. executa `torch.cuda.is_available()`;
+5. mostra a versão do PyTorch, versão CUDA e nome da GPU detectada.
+
+O diagnóstico também passa a validar automaticamente PyTorch e CUDA.
 
 O menu atual possui:
 
 ```text
 1)  Base Linux
 2)  Desenvolvimento (Python/C++/Java/JS/Bancos)
-3)  IA / Machine Learning / Dados financeiros
+3)  IA / Machine Learning / PyTorch CUDA
 4)  DevOps / Containers (Docker/Podman/Ansible)
 5)  Cloud / IaC (AWS/Azure/Terraform/GitHub CLI)
 6)  Kubernetes (kubectl/Helm)
@@ -106,6 +119,9 @@ O diagnóstico verifica:
 - Nmap, tcpdump, TShark, OpenVPN e openfortivpn
 - SMB, LDAP, PowerShell e SSH
 - ambiente de Machine Learning
+- PyTorch
+- disponibilidade de CUDA no PyTorch
+- GPU usada pelo PyTorch
 - presença/estado do driver NVIDIA
 
 Logs:
@@ -134,6 +150,7 @@ Bibliotecas principais:
 - XGBoost
 - Optuna
 - JupyterLab
+- PyTorch / torchvision / torchaudio em hosts NVIDIA compatíveis
 
 Ativar:
 
@@ -142,14 +159,21 @@ source ~/.venvs/ai/bin/activate
 jupyter lab
 ```
 
+### Testar PyTorch + CUDA
+
+```bash
+source ~/.venvs/ai/bin/activate
+python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Não disponível')"
+```
+
 ## Cloud
 
 O módulo Cloud usa métodos conservadores para não quebrar uma versão nova do Ubuntu:
 
-- AWS CLI via Snap oficial suportado pela AWS
-- GitHub CLI via APT
-- Terraform somente quando o repositório HashiCorp possui suporte ao codename atual
-- Azure CLI nativa não é forçada em versões de Ubuntu ainda não listadas pela Microsoft; nesses casos é criado o comando `az-container`, usando a imagem oficial do Azure CLI via Docker
+- AWS CLI via método configurado no projeto
+- GitHub CLI
+- Terraform quando disponível para o Ubuntu utilizado
+- Azure CLI nativa não é forçada quando não está disponível; nesses casos o projeto pode usar uma alternativa em container
 
 ## Administração Windows
 
@@ -181,8 +205,8 @@ O projeto não configura automaticamente credenciais de cloud.
 
 ## Próximos passos
 
-- PyTorch + CUDA após validar NVIDIA no host físico
 - Ollama opcional para modelos locais pequenos
 - ambiente Kubernetes local com kind
 - OpenTofu opcional
 - hardening básico do workstation
+- testes funcionais automatizados de Docker, Terraform, SSH e Jupyter
