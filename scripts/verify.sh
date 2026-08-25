@@ -142,6 +142,23 @@ if [[ -x "$AI_VENV/bin/python" ]]; then
       warn "Python package ausente ou com erro: $pkg"
     fi
   done
+
+  if "$AI_VENV/bin/python" -c "import torch" >/dev/null 2>&1; then
+    torch_version="$($AI_VENV/bin/python -c 'import torch; print(torch.__version__)' 2>/dev/null || true)"
+    pass "PyTorch instalado${torch_version:+ — $torch_version}"
+
+    cuda_available="$($AI_VENV/bin/python -c 'import torch; print(torch.cuda.is_available())' 2>/dev/null || echo False)"
+    if [[ "$cuda_available" == "True" ]]; then
+      cuda_version="$($AI_VENV/bin/python -c 'import torch; print(torch.version.cuda)' 2>/dev/null || true)"
+      gpu_name="$($AI_VENV/bin/python -c 'import torch; print(torch.cuda.get_device_name(0))' 2>/dev/null || true)"
+      pass "CUDA disponível no PyTorch${cuda_version:+ — CUDA $cuda_version}"
+      pass "GPU IA: ${gpu_name:-GPU NVIDIA detectada}"
+    else
+      warn "PyTorch está instalado, mas CUDA não está disponível"
+    fi
+  else
+    warn "PyTorch ainda não está instalado no ambiente de IA"
+  fi
 else
   warn "Ambiente de IA ainda não foi criado"
 fi
