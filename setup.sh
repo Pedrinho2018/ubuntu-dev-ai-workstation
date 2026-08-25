@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-PROJECT_NAME="Ubuntu Dev + AI Workstation"
-VERSION="0.2.0"
+PROJECT_NAME="Ubuntu DevSecOps + AI Workstation"
+VERSION="0.3.0"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/ubuntu-dev-ai-workstation"
 LOG_DIR="$STATE_DIR/logs"
@@ -28,8 +28,6 @@ on_error() {
   exit "$exit_code"
 }
 trap on_error ERR
-
-# Tudo que aparecer no terminal também fica registrado em log.
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 usage() {
@@ -38,7 +36,7 @@ $PROJECT_NAME v$VERSION
 
 Uso:
   ./setup.sh              Abre o menu interativo
-  ./setup.sh --full       Instala o perfil completo e valida o ambiente
+  ./setup.sh --full       Instala o perfil principal completo
   ./setup.sh --check      Executa apenas o diagnóstico
   ./setup.sh --version    Mostra a versão
   ./setup.sh --help       Mostra esta ajuda
@@ -80,9 +78,7 @@ preflight() {
 run_script() {
   local file="$1"
   local path="$ROOT_DIR/scripts/$file"
-
   [[ -f "$path" ]] || die "Arquivo não encontrado: scripts/$file"
-
   log "Executando módulo: $file"
   bash "$path"
   ok "Módulo concluído: $file"
@@ -91,16 +87,19 @@ run_script() {
 run_full() {
   local mode="${1:-interactive}"
 
-  log "Iniciando perfil completo recomendado"
+  log "Instalando perfil principal: desenvolvimento + IA + DevOps + cloud + redes + administração remota"
   run_script base.sh
   run_script dev.sh
   run_script ai.sh
   run_script devops.sh
+  run_script cloud.sh
+  run_script kubernetes.sh
   run_script network.sh
+  run_script work-admin.sh
   run_script apps.sh
 
-  ok "Perfil completo concluído."
-  warn "NVIDIA não é instalada automaticamente. Use a opção 7 somente no Ubuntu instalado fisicamente."
+  ok "Perfil principal concluído."
+  warn "Driver NVIDIA continua separado por segurança. Execute o módulo NVIDIA somente no host físico."
 
   if [[ "$mode" == "automatic" ]]; then
     run_script verify.sh
@@ -117,20 +116,23 @@ run_full() {
 show_menu() {
   while true; do
     echo
-    echo "===================================================="
+    echo "============================================================"
     echo " $PROJECT_NAME v$VERSION"
-    echo "===================================================="
-    echo "1) Base Linux"
-    echo "2) Desenvolvimento (Python/C/C++/Git)"
-    echo "3) IA / Machine Learning"
-    echo "4) DevOps"
-    echo "5) Redes / Segurança"
-    echo "6) Apps de estudo"
-    echo "7) NVIDIA (somente instalação física)"
-    echo "8) Instalar perfil completo recomendado"
-    echo "9) Diagnóstico / validar ambiente"
-    echo "0) Sair"
-    echo "===================================================="
+    echo "============================================================"
+    echo "1)  Base Linux"
+    echo "2)  Desenvolvimento (Python/C++/Java/JS/Bancos)"
+    echo "3)  IA / Machine Learning / Dados financeiros"
+    echo "4)  DevOps / Containers (Docker/Podman/Ansible)"
+    echo "5)  Cloud / IaC (AWS/Azure/Terraform/GitHub CLI)"
+    echo "6)  Kubernetes (kubectl/Helm)"
+    echo "7)  Redes / Segurança"
+    echo "8)  Administração remota Windows/Infra"
+    echo "9)  Apps + VS Code + extensões"
+    echo "10) NVIDIA (somente host físico)"
+    echo "11) Instalar MEU PERFIL PRINCIPAL"
+    echo "12) Diagnóstico / validar ambiente"
+    echo "0)  Sair"
+    echo "============================================================"
     read -rp "Escolha: " choice
 
     case "$choice" in
@@ -138,11 +140,14 @@ show_menu() {
       2) run_script dev.sh ;;
       3) run_script ai.sh ;;
       4) run_script devops.sh ;;
-      5) run_script network.sh ;;
-      6) run_script apps.sh ;;
-      7) run_script nvidia.sh ;;
-      8) run_full interactive ;;
-      9) run_script verify.sh || true ;;
+      5) run_script cloud.sh ;;
+      6) run_script kubernetes.sh ;;
+      7) run_script network.sh ;;
+      8) run_script work-admin.sh ;;
+      9) run_script apps.sh ;;
+      10) run_script nvidia.sh ;;
+      11) run_full interactive ;;
+      12) run_script verify.sh || true ;;
       0)
         ok "Saindo. Log salvo em: $LOG_FILE"
         exit 0
@@ -154,30 +159,12 @@ show_menu() {
 
 main() {
   case "${1:-}" in
-    --help|-h)
-      usage
-      exit 0
-      ;;
-    --version|-v)
-      echo "$PROJECT_NAME v$VERSION"
-      exit 0
-      ;;
-    --full)
-      preflight
-      run_full automatic
-      ;;
-    --check)
-      preflight
-      run_script verify.sh
-      ;;
-    "")
-      preflight
-      show_menu
-      ;;
-    *)
-      usage
-      die "Argumento desconhecido: $1"
-      ;;
+    --help|-h) usage; exit 0 ;;
+    --version|-v) echo "$PROJECT_NAME v$VERSION"; exit 0 ;;
+    --full) preflight; run_full automatic ;;
+    --check) preflight; run_script verify.sh ;;
+    "") preflight; show_menu ;;
+    *) usage; die "Argumento desconhecido: $1" ;;
   esac
 }
 
