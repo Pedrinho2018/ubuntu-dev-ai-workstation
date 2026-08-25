@@ -31,7 +31,7 @@ check_cmd() {
 }
 
 echo "===================================================="
-echo " Ubuntu Dev + AI Workstation — Diagnóstico"
+echo " Ubuntu DevSecOps + AI Workstation — Diagnóstico"
 echo "===================================================="
 
 if [[ -r /etc/os-release ]]; then
@@ -55,98 +55,87 @@ info "CPU: ${cpu} thread(s)"
 info "RAM: ${ram_mb} MB"
 info "Espaço livre em /: ${disk_free_gb} GB"
 
-if (( ram_mb >= 4096 )); then
-  pass "Memória suficiente para o laboratório"
-else
-  warn "Menos de 4 GB de RAM disponível no sistema"
-fi
+(( ram_mb >= 4096 )) && pass "Memória suficiente para o laboratório" || warn "Menos de 4 GB de RAM disponível"
+(( disk_free_gb >= 10 )) && pass "Espaço em disco adequado" || warn "Menos de 10 GB livres em /"
 
-if (( disk_free_gb >= 10 )); then
-  pass "Espaço em disco adequado"
-else
-  warn "Menos de 10 GB livres em /"
-fi
-
-if ip route 2>/dev/null | grep -q '^default '; then
-  pass "Rota padrão de rede encontrada"
-else
-  fail "Nenhuma rota padrão encontrada"
-fi
-
+if ip route 2>/dev/null | grep -q '^default '; then pass "Rota padrão encontrada"; else fail "Nenhuma rota padrão encontrada"; fi
 ipv4="$(ip -4 -o addr show scope global 2>/dev/null | awk '{print $4}' | paste -sd ', ' -)"
-if [[ -n "$ipv4" ]]; then
-  pass "IPv4: $ipv4"
-else
-  fail "Nenhum IPv4 global encontrado"
-fi
-
-if getent hosts github.com >/dev/null 2>&1; then
-  pass "DNS funcionando"
-else
-  fail "Falha de resolução DNS"
-fi
+[[ -n "$ipv4" ]] && pass "IPv4: $ipv4" || fail "Nenhum IPv4 global encontrado"
+getent hosts github.com >/dev/null 2>&1 && pass "DNS funcionando" || fail "Falha de resolução DNS"
 
 if has curl && curl -fsI --connect-timeout 7 https://github.com >/dev/null 2>&1; then
   pass "Acesso HTTPS à Internet funcionando"
 elif ping -c 1 -W 3 1.1.1.1 >/dev/null 2>&1; then
-  warn "Internet responde por IP, mas o teste HTTPS falhou"
+  warn "Internet responde por IP, mas HTTPS falhou"
 else
   fail "Sem conectividade com a Internet"
 fi
 
 echo
-info "Ferramentas de desenvolvimento"
+info "Desenvolvimento"
 check_cmd git Git
 check_cmd python3 Python
 check_cmd pip3 pip
 check_cmd gcc GCC
 check_cmd g++ G++
 check_cmd cmake CMake
+check_cmd node Node.js
+check_cmd npm npm
+check_cmd java Java
+check_cmd psql PostgreSQL-client
+check_cmd mysql MySQL-client
 
 echo
-info "DevOps"
+info "DevOps / Containers"
 check_cmd docker Docker
+check_cmd podman Podman
 check_cmd ansible Ansible
 if has docker; then
-  if systemctl is-active --quiet docker 2>/dev/null; then
-    pass "Serviço Docker ativo"
-  else
-    warn "Docker instalado, mas o serviço não está ativo"
-  fi
-
-  if id -nG "$USER" | tr ' ' '\n' | grep -qx docker; then
-    pass "Usuário pertence ao grupo docker"
-  else
-    warn "Usuário ainda não aparece no grupo docker; pode ser necessário sair e entrar novamente"
-  fi
+  systemctl is-active --quiet docker 2>/dev/null && pass "Serviço Docker ativo" || warn "Docker instalado, mas serviço inativo"
+  id -nG "$USER" | tr ' ' '\n' | grep -qx docker && pass "Usuário pertence ao grupo docker" || warn "Grupo docker ainda não aplicado à sessão"
 fi
 
 echo
-info "Rede e segurança"
+info "Cloud / IaC"
+check_cmd aws AWS-CLI
+check_cmd gh GitHub-CLI
+check_cmd terraform Terraform
+if has az; then
+  pass "Azure CLI nativa instalada"
+elif has az-container; then
+  pass "Azure CLI disponível via az-container"
+else
+  warn "Azure CLI ainda não está disponível"
+fi
+
+echo
+info "Kubernetes"
+check_cmd kubectl kubectl
+check_cmd helm Helm
+
+echo
+info "Redes / Segurança / Infra"
 check_cmd nmap Nmap
 check_cmd tcpdump tcpdump
 check_cmd tshark TShark
 check_cmd openvpn OpenVPN
+check_cmd openfortivpn openfortivpn
+check_cmd smbclient smbclient
+check_cmd ldapsearch ldap-utils
+check_cmd pwsh PowerShell
 
 if systemctl list-unit-files ssh.service >/dev/null 2>&1; then
-  if systemctl is-active --quiet ssh 2>/dev/null; then
-    pass "SSH Server ativo"
-  else
-    warn "SSH Server existe, mas não está ativo"
-  fi
+  systemctl is-active --quiet ssh 2>/dev/null && pass "SSH Server ativo" || warn "SSH Server existe, mas não está ativo"
 else
   warn "SSH Server não encontrado"
 fi
 
 echo
-info "Ambiente de IA"
+info "Ambiente de IA / Machine Learning"
 AI_VENV="$HOME/.venvs/ai"
 if [[ -x "$AI_VENV/bin/python" ]]; then
   pass "Ambiente virtual de IA encontrado em $AI_VENV"
-  ai_python="$($AI_VENV/bin/python --version 2>/dev/null || true)"
-  info "${ai_python:-Python do ambiente não identificado}"
-
-  for pkg in numpy pandas sklearn jupyterlab; do
+  for pkg in numpy pandas sklearn jupyterlab statsmodels yfinance xgboost optuna; do
     if "$AI_VENV/bin/python" -c "import $pkg" >/dev/null 2>&1; then
       pass "Python package: $pkg"
     else
@@ -158,11 +147,20 @@ else
 fi
 
 echo
+info "GPU"
+if has nvidia-smi; then
+  pass "NVIDIA driver ativo"
+  nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader 2>/dev/null || true
+elif lspci 2>/dev/null | grep -qi nvidia; then
+  warn "GPU NVIDIA detectada, mas nvidia-smi não está disponível"
+else
+  info "Nenhuma GPU NVIDIA detectada neste ambiente"
+fi
+
+echo
 echo "===================================================="
 printf "Resultado: ${GREEN}%d OK${RESET} | ${YELLOW}%d avisos${RESET} | ${RED}%d falhas${RESET}\n" "$PASS" "$WARN" "$FAIL"
 echo "===================================================="
 
-if (( FAIL > 0 )); then
-  exit 1
-fi
+(( FAIL > 0 )) && exit 1
 exit 0
