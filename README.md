@@ -43,6 +43,50 @@ chmod +x setup.sh scripts/*.sh
 ./setup.sh
 ```
 
+## Setup v0.2
+
+O `setup.sh` agora possui:
+
+- menu contínuo: você pode instalar vários módulos sem reabrir o script
+- diagnóstico do ambiente
+- detecção de virtualização
+- teste de DNS e acesso HTTPS
+- logs automáticos de cada execução
+- tratamento de erros com indicação da linha e arquivo de log
+- execução não interativa por argumentos
+
+Os logs ficam em:
+
+```text
+~/.local/state/ubuntu-dev-ai-workstation/logs/
+```
+
+### Comandos rápidos
+
+Abrir o menu:
+
+```bash
+./setup.sh
+```
+
+Instalar o perfil completo:
+
+```bash
+./setup.sh --full
+```
+
+Executar somente o diagnóstico:
+
+```bash
+./setup.sh --check
+```
+
+Ver versão:
+
+```bash
+./setup.sh --version
+```
+
 ## Módulos
 
 O menu do `setup.sh` permite instalar:
@@ -55,8 +99,26 @@ O menu do `setup.sh` permite instalar:
 6. Apps de estudo
 7. NVIDIA no host físico
 8. Perfil completo recomendado
+9. Diagnóstico / validar ambiente
 
-> Não instale o módulo NVIDIA dentro da VM. O script tenta detectar virtualização e bloqueia essa etapa.
+> Não instale o módulo NVIDIA dentro da VM. O próprio script tenta detectar virtualização e bloqueia essa etapa.
+
+## Diagnóstico
+
+O arquivo [`scripts/verify.sh`](scripts/verify.sh) verifica:
+
+- sistema operacional e virtualização
+- CPU, RAM e espaço livre
+- rota padrão e endereço IPv4
+- DNS
+- acesso HTTPS à Internet
+- Git, Python, pip, GCC, G++, CMake
+- Docker e Ansible
+- Nmap, tcpdump, TShark e OpenVPN
+- status do SSH Server
+- ambiente virtual de IA e bibliotecas principais
+
+Ao final ele mostra um resumo com quantidade de testes OK, avisos e falhas.
 
 ## IA
 
@@ -98,4 +160,6 @@ O `.gitignore` bloqueia vários formatos sensíveis.
 - PyTorch + CUDA para NVIDIA
 - Steam
 - AWS CLI / Azure CLI
+- kubectl / ambiente Kubernetes local
+- extensões recomendadas do VS Code
 - configuração opcional KDE Plasma
