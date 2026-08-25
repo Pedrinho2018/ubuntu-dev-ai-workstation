@@ -2,9 +2,14 @@ numpy
 pandas
 scipy
 matplotlib
+plotly
 scikit-learn
 jupyterlab
 ipykernel
 statsmodels
 yfinance
 requests
+openpyxl
+joblib
+xgboost
+optuna
