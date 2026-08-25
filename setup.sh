@@ -38,7 +38,7 @@ $PROJECT_NAME v$VERSION
 
 Uso:
   ./setup.sh              Abre o menu interativo
-  ./setup.sh --full       Instala o perfil completo recomendado
+  ./setup.sh --full       Instala o perfil completo e valida o ambiente
   ./setup.sh --check      Executa apenas o diagnóstico
   ./setup.sh --version    Mostra a versão
   ./setup.sh --help       Mostra esta ajuda
@@ -89,6 +89,8 @@ run_script() {
 }
 
 run_full() {
+  local mode="${1:-interactive}"
+
   log "Iniciando perfil completo recomendado"
   run_script base.sh
   run_script dev.sh
@@ -99,6 +101,11 @@ run_full() {
 
   ok "Perfil completo concluído."
   warn "NVIDIA não é instalada automaticamente. Use a opção 7 somente no Ubuntu instalado fisicamente."
+
+  if [[ "$mode" == "automatic" ]]; then
+    run_script verify.sh
+    return
+  fi
 
   echo
   read -rp "Executar diagnóstico final agora? [S/n]: " answer
@@ -134,7 +141,7 @@ show_menu() {
       5) run_script network.sh ;;
       6) run_script apps.sh ;;
       7) run_script nvidia.sh ;;
-      8) run_full ;;
+      8) run_full interactive ;;
       9) run_script verify.sh || true ;;
       0)
         ok "Saindo. Log salvo em: $LOG_FILE"
@@ -157,7 +164,7 @@ main() {
       ;;
     --full)
       preflight
-      run_full
+      run_full automatic
       ;;
     --check)
       preflight
