@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 PROJECT_NAME="Ubuntu DevSecOps + AI Workstation"
-VERSION="0.3.0"
+VERSION="0.4.0"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/ubuntu-dev-ai-workstation"
 LOG_DIR="$STATE_DIR/logs"
@@ -121,7 +121,7 @@ show_menu() {
     echo "============================================================"
     echo "1)  Base Linux"
     echo "2)  Desenvolvimento (Python/C++/Java/JS/Bancos)"
-    echo "3)  IA / Machine Learning / Dados financeiros"
+    echo "3)  IA / Machine Learning / PyTorch CUDA"
     echo "4)  DevOps / Containers (Docker/Podman/Ansible)"
     echo "5)  Cloud / IaC (AWS/Azure/Terraform/GitHub CLI)"
     echo "6)  Kubernetes (kubectl/Helm)"
