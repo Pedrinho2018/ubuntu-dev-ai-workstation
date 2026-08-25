@@ -1,0 +1,61 @@
+#cloud-config
+# ATENCAO: perfil de laboratorio/VM.
+# O storage 'direct' usa o disco inteiro apresentado ao instalador.
+# NAO use este arquivo em maquina fisica sem revisar a secao storage.
+
+autoinstall:
+  version: 1
+
+  # Mantemos somente a criacao de usuario interativa para nao publicar
+  # senha/hash no repositorio publico.
+  interactive-sections:
+    - identity
+
+  locale: pt_BR.UTF-8
+  keyboard:
+    layout: br
+    variant: ""
+
+  timezone: America/Cuiaba
+
+  # Ubuntu Desktop completo (nao minimal).
+  source:
+    id: ubuntu-desktop
+    search_drivers: false
+
+  # Para a VM do Hyper-V: usa o disco virtual inteiro.
+  storage:
+    layout:
+      name: direct
+
+  # Em VM nao precisamos procurar/instalar driver NVIDIA do host.
+  drivers:
+    install: false
+
+  oem:
+    install: false
+
+  codecs:
+    install: false
+
+  ssh:
+    install-server: true
+    allow-pw: true
+
+  packages:
+    - git
+    - curl
+    - wget
+    - ca-certificates
+    - openssh-server
+    - python3
+    - python3-pip
+    - python3-venv
+    - build-essential
+
+  updates: security
+
+  refresh-installer:
+    update: false
+
+  shutdown: reboot
