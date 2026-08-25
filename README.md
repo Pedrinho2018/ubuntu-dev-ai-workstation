@@ -78,3 +78,5 @@ O `.gitignore` bloqueia vários formatos sensíveis.
 - AWS CLI / Azure CLI
 - configuração opcional KDE Plasma
 - `autoinstall.yaml`
+
+https://raw.githubusercontent.com/Pedrinho2018/ubuntu-dev-ai-workstation/main/autoinstall/autoinstall-vm.yaml
