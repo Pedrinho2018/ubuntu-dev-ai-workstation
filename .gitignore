@@ -1,0 +1,13 @@
+.venv/
+.venvs/
+__pycache__/
+*.pyc
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+*.ovpn
+secrets/
+.vscode/
