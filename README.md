@@ -1,165 +1,188 @@
-# Ubuntu Dev + AI Workstation
+# Ubuntu DevSecOps + AI Workstation
 
-Automação modular para preparar uma estação Ubuntu/Kubuntu voltada para estudo, desenvolvimento, IA, DevOps, redes e segurança.
+Automação modular para preparar um Ubuntu voltado ao uso real em desenvolvimento, DevOps, cloud, redes, segurança, administração remota de infraestrutura Windows e estudos de Machine Learning.
 
-## Objetivo
+## Perfil principal
 
-Montar um ambiente reutilizável para:
+O projeto agora foi ajustado para um uso misto de:
 
-- Faculdade e programação
-- Python, C e C++
-- IA / Machine Learning
-- Docker / Podman / Ansible
-- Redes e segurança
-- Administração remota via SSH/RDP
-- NVIDIA no host físico
+- Python, C/C++, Java e JavaScript/Node.js
+- PostgreSQL, MySQL/MariaDB e SQLite
+- Machine Learning e análise de dados financeiros
+- Docker, Docker Compose, Podman, Buildah e Ansible
+- AWS CLI, Azure CLI, Terraform e GitHub CLI
+- Kubernetes com kubectl e Helm
+- Wireshark, Nmap, tcpdump, TShark, OpenVPN e ferramentas de rede
+- PowerShell 7, Remmina/RDP, SMB, LDAP e SSH para infraestrutura Windows
+- VS Code com extensões de Python, C++, Docker, Kubernetes, Terraform, YAML, PowerShell e Remote SSH
+- NVIDIA no host físico, em módulo separado
 
-## Teste recomendado primeiro
+## Instalação física
 
-Antes de instalar no computador físico, valide tudo em uma VM Hyper-V com Ubuntu 26.04 LTS.
+Para formatar uma máquina real, **não use o `autoinstall-vm.yaml`**.
 
-Guia completo:
+O perfil de Autoinstall existente foi criado para laboratório/Hyper-V e usa o disco inteiro apresentado ao instalador.
+
+Guia seguro para instalação física:
+
+- [`docs/physical-install.md`](docs/physical-install.md)
+
+## Laboratório Hyper-V
+
+Guia da VM:
 
 - [`docs/hyper-v-ubuntu-26.04.md`](docs/hyper-v-ubuntu-26.04.md)
 
-Perfil de instalação automatizada para VM:
+Autoinstall exclusivo para VM:
 
 - [`autoinstall/autoinstall-vm.yaml`](autoinstall/autoinstall-vm.yaml)
 
-URL RAW para importar diretamente no instalador do Ubuntu:
+URL RAW:
 
 ```text
 https://raw.githubusercontent.com/Pedrinho2018/ubuntu-dev-ai-workstation/main/autoinstall/autoinstall-vm.yaml
 ```
 
-> O perfil de VM usa o disco inteiro apresentado ao instalador. Não use em máquina física sem revisar `storage`.
-
-## Uso depois da instalação
+## Pós-instalação
 
 ```bash
+sudo apt update
+sudo apt install -y git
+
 git clone https://github.com/Pedrinho2018/ubuntu-dev-ai-workstation.git
 cd ubuntu-dev-ai-workstation
 chmod +x setup.sh scripts/*.sh
 ./setup.sh
 ```
 
-## Setup v0.2
+## Setup v0.3
 
-O `setup.sh` agora possui:
-
-- menu contínuo: você pode instalar vários módulos sem reabrir o script
-- diagnóstico do ambiente
-- detecção de virtualização
-- teste de DNS e acesso HTTPS
-- logs automáticos de cada execução
-- tratamento de erros com indicação da linha e arquivo de log
-- execução não interativa por argumentos
-
-Os logs ficam em:
+O menu atual possui:
 
 ```text
-~/.local/state/ubuntu-dev-ai-workstation/logs/
+1)  Base Linux
+2)  Desenvolvimento (Python/C++/Java/JS/Bancos)
+3)  IA / Machine Learning / Dados financeiros
+4)  DevOps / Containers (Docker/Podman/Ansible)
+5)  Cloud / IaC (AWS/Azure/Terraform/GitHub CLI)
+6)  Kubernetes (kubectl/Helm)
+7)  Redes / Segurança
+8)  Administração remota Windows/Infra
+9)  Apps + VS Code + extensões
+10) NVIDIA (somente host físico)
+11) Instalar MEU PERFIL PRINCIPAL
+12) Diagnóstico / validar ambiente
+0)  Sair
 ```
 
-### Comandos rápidos
+### Perfil principal
 
-Abrir o menu:
-
-```bash
-./setup.sh
-```
-
-Instalar o perfil completo:
+Para instalar os módulos principais automaticamente:
 
 ```bash
 ./setup.sh --full
 ```
 
-Executar somente o diagnóstico:
+Ou abra o menu e escolha a opção 11.
+
+O driver NVIDIA continua separado por segurança.
+
+## Diagnóstico
 
 ```bash
 ./setup.sh --check
 ```
 
-Ver versão:
+O diagnóstico verifica:
 
-```bash
-./setup.sh --version
+- sistema e virtualização
+- CPU, RAM e disco
+- IPv4, rota, DNS e Internet
+- Git, Python, C/C++, Java e Node.js
+- clientes PostgreSQL e MySQL
+- Docker, Podman e Ansible
+- AWS CLI, GitHub CLI, Terraform e Azure CLI/container
+- kubectl e Helm
+- Nmap, tcpdump, TShark, OpenVPN e openfortivpn
+- SMB, LDAP, PowerShell e SSH
+- ambiente de Machine Learning
+- presença/estado do driver NVIDIA
+
+Logs:
+
+```text
+~/.local/state/ubuntu-dev-ai-workstation/logs/
 ```
 
-## Módulos
+## Machine Learning
 
-O menu do `setup.sh` permite instalar:
-
-1. Base Linux
-2. Desenvolvimento
-3. IA / Machine Learning
-4. DevOps
-5. Redes / Segurança
-6. Apps de estudo
-7. NVIDIA no host físico
-8. Perfil completo recomendado
-9. Diagnóstico / validar ambiente
-
-> Não instale o módulo NVIDIA dentro da VM. O próprio script tenta detectar virtualização e bloqueia essa etapa.
-
-## Diagnóstico
-
-O arquivo [`scripts/verify.sh`](scripts/verify.sh) verifica:
-
-- sistema operacional e virtualização
-- CPU, RAM e espaço livre
-- rota padrão e endereço IPv4
-- DNS
-- acesso HTTPS à Internet
-- Git, Python, pip, GCC, G++, CMake
-- Docker e Ansible
-- Nmap, tcpdump, TShark e OpenVPN
-- status do SSH Server
-- ambiente virtual de IA e bibliotecas principais
-
-Ao final ele mostra um resumo com quantidade de testes OK, avisos e falhas.
-
-## IA
-
-O ambiente Python é criado em:
+O ambiente é criado em:
 
 ```bash
 ~/.venvs/ai
 ```
 
-Ative com:
+Bibliotecas principais:
+
+- NumPy
+- Pandas
+- SciPy
+- Matplotlib / Plotly
+- scikit-learn
+- Statsmodels
+- yfinance
+- XGBoost
+- Optuna
+- JupyterLab
+
+Ativar:
 
 ```bash
 source ~/.venvs/ai/bin/activate
-```
-
-Depois:
-
-```bash
 jupyter lab
 ```
 
+## Cloud
+
+O módulo Cloud usa métodos conservadores para não quebrar uma versão nova do Ubuntu:
+
+- AWS CLI via Snap oficial suportado pela AWS
+- GitHub CLI via APT
+- Terraform somente quando o repositório HashiCorp possui suporte ao codename atual
+- Azure CLI nativa não é forçada em versões de Ubuntu ainda não listadas pela Microsoft; nesses casos é criado o comando `az-container`, usando a imagem oficial do Azure CLI via Docker
+
+## Administração Windows
+
+O Ubuntu pode administrar vários serviços remotamente, mas não substitui completamente uma estação Windows de administração.
+
+O projeto instala:
+
+- Remmina/RDP
+- PowerShell 7
+- SSH
+- SMB/CIFS
+- LDAP tools
+- openfortivpn
+
+Ferramentas como **RSAT, ADUC e GPMC continuam sendo Windows-only**. Para essas tarefas, use RDP para uma estação/servidor Windows autorizado.
+
 ## Segurança
 
-Nunca publique:
+Nunca publique no repositório:
 
 - senhas
 - tokens
 - chaves SSH privadas
-- arquivos `.ovpn`
+- arquivos VPN com credenciais
 - certificados privados
-- credenciais de cloud
+- credenciais AWS/Azure
 
-O `.gitignore` bloqueia vários formatos sensíveis.
+O projeto não configura automaticamente credenciais de cloud.
 
-## Próximos módulos
+## Próximos passos
 
-- Terraform/OpenTofu via repositório oficial
-- Ollama
-- PyTorch + CUDA para NVIDIA
-- Steam
-- AWS CLI / Azure CLI
-- kubectl / ambiente Kubernetes local
-- extensões recomendadas do VS Code
-- configuração opcional KDE Plasma
+- PyTorch + CUDA após validar NVIDIA no host físico
+- Ollama opcional para modelos locais pequenos
+- ambiente Kubernetes local com kind
+- OpenTofu opcional
+- hardening básico do workstation
