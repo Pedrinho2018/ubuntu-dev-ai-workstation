@@ -1,0 +1,26 @@
+# Ambiente de laboratorio local; nao exponha diretamente para a rede.
+services:
+  n8n:
+    image: ${N8N_IMAGE:-n8nio/n8n:latest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      GENERIC_TIMEZONE: America/Cuiaba
+      TZ: America/Cuiaba
+      N8N_HOST: localhost
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      N8N_SECURE_COOKIE: "false" # Somente HTTP em localhost.
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?Defina compose/.env.agents}
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
