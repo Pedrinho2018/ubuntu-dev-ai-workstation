@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 PROJECT_NAME="Ubuntu DevSecOps + AI Workstation"
-VERSION="0.4.0"
+VERSION="0.5.0"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/ubuntu-dev-ai-workstation"
 LOG_DIR="$STATE_DIR/logs"
@@ -38,6 +38,9 @@ Uso:
   ./setup.sh              Abre o menu interativo
   ./setup.sh --full       Instala o perfil principal completo
   ./setup.sh --check      Executa apenas o diagnóstico
+  ./setup.sh --agents     Instala LangGraph isolado (opcional)
+  ./setup.sh --agents-up  Inicia n8n local via Docker (opcional)
+  ./setup.sh --agents-check  Verifica ambiente de agentes
   ./setup.sh --version    Mostra a versão
   ./setup.sh --help       Mostra esta ajuda
 EOF
@@ -77,10 +80,11 @@ preflight() {
 
 run_script() {
   local file="$1"
+  shift
   local path="$ROOT_DIR/scripts/$file"
   [[ -f "$path" ]] || die "Arquivo não encontrado: scripts/$file"
   log "Executando módulo: $file"
-  bash "$path"
+  bash "$path" "$@"
   ok "Módulo concluído: $file"
 }
 
@@ -131,6 +135,9 @@ show_menu() {
     echo "10) NVIDIA (somente host físico)"
     echo "11) Instalar MEU PERFIL PRINCIPAL"
     echo "12) Diagnóstico / validar ambiente"
+    echo "13) Agentes IA: instalar LangGraph"
+    echo "14) Agentes IA: iniciar n8n local"
+    echo "15) Agentes IA: verificar status"
     echo "0)  Sair"
     echo "============================================================"
     read -rp "Escolha: " choice
@@ -148,6 +155,9 @@ show_menu() {
       10) run_script nvidia.sh ;;
       11) run_full interactive ;;
       12) run_script verify.sh || true ;;
+      13) run_script agents.sh install ;;
+      14) run_script agents.sh up ;;
+      15) run_script agents.sh status ;;
       0)
         ok "Saindo. Log salvo em: $LOG_FILE"
         exit 0
@@ -163,6 +173,9 @@ main() {
     --version|-v) echo "$PROJECT_NAME v$VERSION"; exit 0 ;;
     --full) preflight; run_full automatic ;;
     --check) preflight; run_script verify.sh ;;
+    --agents) preflight; run_script agents.sh install ;;
+    --agents-up) preflight; run_script agents.sh up ;;
+    --agents-check) preflight; run_script agents.sh status ;;
     "") preflight; show_menu ;;
     *) usage; die "Argumento desconhecido: $1" ;;
   esac

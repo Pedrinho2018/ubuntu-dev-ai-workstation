@@ -1,0 +1,4 @@
+# Ambiente separado do venv de ML/PyTorch
+langgraph>=1,<2
+langgraph-checkpoint-sqlite>=2,<4
+langchain-ollama>=1,<2

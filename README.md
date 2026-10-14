@@ -203,9 +203,25 @@ Nunca publique no repositório:
 
 O projeto não configura automaticamente credenciais de cloud.
 
+## Agentes de IA locais — opt-in (v0.5)
+
+Novo módulo **Ollama + LangGraph + n8n** com dados locais e isolamento.
+A instalação é opcional e não altera o fluxo do --full.
+
+~~~bash
+./setup.sh --agents
+bash scripts/agents.sh install-ollama
+bash scripts/agents.sh model-pull
+bash scripts/agents.sh chat 'Olá!'
+./setup.sh --agents-up
+./setup.sh --agents-check
+~~~
+
+O n8n só escuta em 127.0.0.1:5678. Consulte [guia dos agentes](docs/local-agents.md)
+para controles de segurança, backups e configuração de modelos.
+
 ## Próximos passos
 
-- Ollama opcional para modelos locais pequenos
 - ambiente Kubernetes local com kind
 - OpenTofu opcional
 - hardening básico do workstation

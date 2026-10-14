@@ -1,0 +1,46 @@
+name: Agentes locais - CI
+
+on:
+  push:
+    paths:
+      - 'scripts/agents.sh'
+      - 'examples/agent_chat.py'
+      - 'requirements/python-agents.txt'
+      - 'compose/agents.compose.yaml'
+      - 'setup.sh'
+      - '.github/workflows/agents-ci.yml'
+  pull_request:
+    paths:
+      - 'scripts/agents.sh'
+      - 'examples/agent_chat.py'
+      - 'requirements/python-agents.txt'
+      - 'compose/agents.compose.yaml'
+      - 'setup.sh'
+      - '.github/workflows/agents-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Sintaxe e ShellCheck
+        run: |
+          bash -n setup.sh scripts/agents.sh
+          shellcheck scripts/agents.sh
+      - name: Compilar Python
+        run: python3 -m py_compile examples/agent_chat.py
+      - name: Validar Docker Compose sem iniciar servicos
+        env:
+          N8N_ENCRYPTION_KEY: ci-only-not-real
+        run: docker compose -f compose/agents.compose.yaml config --quiet
+      - name: Testar ajuda e status sem efeitos colaterais
+        run: |
+          bash scripts/agents.sh --help
+          bash scripts/agents.sh status
